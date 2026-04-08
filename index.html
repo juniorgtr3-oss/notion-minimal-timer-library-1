@@ -8,6 +8,7 @@
             --bg-color: transparent;
             --timer-color: #37352f;
             --accent-color: #eb5757;
+            --button-bg: #ffffff;
         }
 
         body {
@@ -16,22 +17,23 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
             background-color: var(--bg-color);
-            overflow: hidden; /* Evita barras de scroll innecesarias */
+            overflow: hidden;
         }
 
+        /* Modos */
         .modes {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             margin-bottom: 5px;
         }
 
         .mode-btn {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             cursor: pointer;
             border: none;
             background: none;
@@ -46,78 +48,94 @@
             border-bottom: 2px solid var(--accent-color);
         }
 
+        /* Temporizador */
         .timer-display {
-            font-size: 4.5rem;
+            font-size: 5rem;
             font-weight: 700;
             margin: 5px 0;
-            letter-spacing: -3px;
+            letter-spacing: -4px;
             color: var(--timer-color);
         }
 
+        /* Botones */
         .controls {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn {
-            background: white;
+            background: var(--button-bg);
             border: 1px solid #e0e0e0;
-            padding: 6px 12px;
-            border-radius: 15px;
+            padding: 6px 14px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 0.75rem;
             color: var(--timer-color);
-            transition: 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .btn:hover { border-color: var(--accent-color); }
+        .btn:hover {
+            border-color: var(--accent-color);
+            background: #f9f9f9;
+        }
 
         .settings-toggle {
             background: none;
             border: none;
             font-size: 1.1rem;
             cursor: pointer;
-            color: #a0a0a0;
+            padding: 5px;
+            color: #ccc;
+            transition: transform 0.3s, color 0.3s;
+            display: flex;
+            align-items: center;
         }
 
-        /* PANEL DE CONFIGURACIÓN MEJORADO PARA NOTION */
+        .settings-toggle:hover {
+            color: var(--accent-color);
+            transform: rotate(45deg);
+        }
+
+        /* Panel de Configuración */
         #settings-panel {
             display: none;
-            position: absolute;
-            top: 10px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             z-index: 100;
-            width: 180px;
+            width: 200px;
         }
 
-        .field { margin-bottom: 8px; }
-        label { display: block; font-size: 0.65rem; color: #666; }
-        input, select { width: 100%; padding: 4px; font-size: 0.75rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .field { margin-bottom: 10px; }
+        label { display: block; font-size: 0.7rem; color: #666; margin-bottom: 3px; }
+        input { width: 100%; padding: 5px; border-radius: 4px; border: 1px solid #ddd; font-size: 0.8rem; box-sizing: border-box; }
         
         .save-btn {
             width: 100%;
             background: var(--timer-color);
             color: white;
             border: none;
-            padding: 6px;
-            border-radius: 4px;
+            padding: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-top: 5px;
-            font-size: 0.75rem;
+            margin-top: 10px;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
     <div class="modes">
-        <button class="mode-btn active" id="focusBtn" onclick="switchMode('focus')">Focus</button>
-        <button class="mode-btn" id="relajoBtn" onclick="switchMode('relajo')">Relajo</button>
-        <button class="mode-btn" id="descansoBtn" onclick="switchMode('descanso')">Descanso</button>
+        <button class="mode-btn active" id="focusModeBtn" onclick="switchMode('focus')">Focus</button>
+        <button class="mode-btn" id="breakModeBtn" onclick="switchMode('break')">Break</button>
+        <button class="mode-btn" id="descansoModeBtn" onclick="switchMode('descanso')">Descanso</button>
     </div>
 
     <div class="timer-display" id="display">25:00</div>
@@ -130,32 +148,26 @@
     </div>
 
     <div id="settings-panel">
-        <div class="field"><label>Tiempos (F/R/D):</label>
-            <div style="display:flex; gap:2px;">
-                <input type="number" id="fIn" value="25" title="Focus">
-                <input type="number" id="rIn" value="5" title="Relajo">
-                <input type="number" id="dIn" value="15" title="Descanso">
-            </div>
-        </div>
-        <div class="field"><label>Color Números:</label><input type="color" id="nCol" value="#37352f"></div>
-        <div class="field"><label>Color Interfaz:</label><input type="color" id="aCol" value="#eb5757"></div>
-        <div class="field">
-            <label>Sonido:</label>
-            <select id="sSel">
-                <option value="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">Sutil</option>
-                <option value="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">Digital</option>
-                <option value="https://actions.google.com/sounds/v1/office/light_switch_on.ogg">Click Zen</option>
-            </select>
-        </div>
-        <button class="save-btn" onclick="saveSettings()">Guardar</button>
+        <div class="field"><label>Minutos Focus:</label><input type="number" id="focusIn" value="25"></div>
+        <div class="field"><label>Minutos Break:</label><input type="number" id="breakIn" value="5"></div>
+        <div class="field"><label>Minutos Descanso:</label><input type="number" id="descansoIn" value="15"></div>
+        <div class="field"><label>Color Números:</label><input type="color" id="numCol" value="#37352f"></div>
+        <div class="field"><label>Color Interfaz:</label><input type="color" id="accCol" value="#eb5757"></div>
+        <button class="save-btn" onclick="saveSettings()">Guardar Cambios</button>
     </div>
 
-    <audio id="alarmSound"></audio>
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
 
     <script>
-        let times = { focus: localStorage.getItem('f') || 25, relajo: localStorage.getItem('r') || 5, descanso: localStorage.getItem('d') || 15 };
-        let colors = { num: localStorage.getItem('nc') || '#37352f', acc: localStorage.getItem('ac') || '#eb5757' };
-        let sound = localStorage.getItem('snd') || "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
+        let times = {
+            focus: localStorage.getItem('focus') || 25,
+            break: localStorage.getItem('break') || 5,
+            descanso: localStorage.getItem('descanso') || 15
+        };
+        let colors = {
+            num: localStorage.getItem('numCol') || '#37352f',
+            acc: localStorage.getItem('accCol') || '#eb5757'
+        };
         
         let timeLeft = times.focus * 60;
         let timerId = null;
@@ -164,12 +176,11 @@
         function init() {
             document.documentElement.style.setProperty('--timer-color', colors.num);
             document.documentElement.style.setProperty('--accent-color', colors.acc);
-            document.getElementById('fIn').value = times.focus;
-            document.getElementById('rIn').value = times.relajo;
-            document.getElementById('dIn').value = times.descanso;
-            document.getElementById('nCol').value = colors.num;
-            document.getElementById('aCol').value = colors.acc;
-            document.getElementById('sSel').value = sound;
+            document.getElementById('focusIn').value = times.focus;
+            document.getElementById('breakIn').value = times.break;
+            document.getElementById('descansoIn').value = times.descanso;
+            document.getElementById('numCol').value = colors.num;
+            document.getElementById('accCol').value = colors.acc;
             updateDisplay();
         }
 
@@ -182,21 +193,29 @@
         function startTimer() {
             if (timerId) return;
             timerId = setInterval(() => {
-                timeLeft--; updateDisplay();
+                timeLeft--;
+                updateDisplay();
                 if (timeLeft <= 0) {
-                    clearInterval(timerId); timerId = null;
-                    const a = document.getElementById('alarmSound');
-                    a.src = sound; a.play();
+                    clearInterval(timerId);
+                    timerId = null;
+                    document.getElementById('alarmSound').play();
                 }
             }, 1000);
         }
 
         function pauseTimer() { clearInterval(timerId); timerId = null; }
-        function resetTimer() { pauseTimer(); timeLeft = times[currentMode] * 60; updateDisplay(); }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = times[currentMode] * 60;
+            updateDisplay();
+        }
 
         function switchMode(mode) {
             currentMode = mode;
-            ['focus','relajo','descanso'].forEach(m => document.getElementById(m+'Btn').classList.toggle('active', m === mode));
+            ['focus','break','descanso'].forEach(m => {
+                document.getElementById(`${m}ModeBtn`).classList.toggle('active', m === mode);
+            });
             resetTimer();
         }
 
@@ -206,18 +225,23 @@
         }
 
         function saveSettings() {
-            times.focus = document.getElementById('fIn').value;
-            times.relajo = document.getElementById('rIn').value;
-            times.descanso = document.getElementById('dIn').value;
-            colors.num = document.getElementById('nCol').value;
-            colors.acc = document.getElementById('aCol').value;
-            sound = document.getElementById('sSel').value;
+            times.focus = document.getElementById('focusIn').value;
+            times.break = document.getElementById('breakIn').value;
+            times.descanso = document.getElementById('descansoIn').value;
+            colors.num = document.getElementById('numCol').value;
+            colors.acc = document.getElementById('accCol').value;
 
-            localStorage.setItem('f', times.focus); localStorage.setItem('r', times.relajo); localStorage.setItem('d', times.descanso);
-            localStorage.setItem('nc', colors.num); localStorage.setItem('ac', colors.acc); localStorage.setItem('snd', sound);
+            localStorage.setItem('focus', times.focus);
+            localStorage.setItem('break', times.break);
+            localStorage.setItem('descanso', times.descanso);
+            localStorage.setItem('numCol', colors.num);
+            localStorage.setItem('accCol', colors.acc);
 
-            init(); toggleSettings(); resetTimer();
+            init();
+            toggleSettings();
+            resetTimer();
         }
+
         init();
     </script>
 </body>
