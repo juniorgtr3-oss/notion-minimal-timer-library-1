@@ -1,4 +1,3 @@
-# notion-minimal-timer-library-1
 <!DOCTYPE html>
 <html lang="es">
 <head>
