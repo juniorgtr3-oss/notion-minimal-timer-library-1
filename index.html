@@ -23,7 +23,6 @@
             overflow: hidden;
         }
 
-        /* Modos */
         .modes {
             display: flex;
             gap: 15px;
@@ -48,7 +47,6 @@
             border-bottom: 2px solid var(--accent-color);
         }
 
-        /* Temporizador */
         .timer-display {
             font-size: 5rem;
             font-weight: 700;
@@ -57,7 +55,6 @@
             color: var(--timer-color);
         }
 
-        /* Botones */
         .controls {
             display: flex;
             align-items: center;
@@ -97,7 +94,6 @@
             transform: rotate(45deg);
         }
 
-        /* Panel de Configuración */
         #settings-panel {
             display: none;
             position: fixed;
@@ -156,7 +152,7 @@
         <button class="save-btn" onclick="saveSettings()">Guardar Cambios</button>
     </div>
 
-    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" loop></audio>
 
     <script>
         let times = {
@@ -172,6 +168,7 @@
         let timeLeft = times.focus * 60;
         let timerId = null;
         let currentMode = 'focus';
+        const alarm = document.getElementById('alarmSound');
 
         function init() {
             document.documentElement.style.setProperty('--timer-color', colors.num);
@@ -192,21 +189,34 @@
 
         function startTimer() {
             if (timerId) return;
+            // Aseguramos volumen al máximo al interactuar
+            alarm.volume = 1.0; 
+            
             timerId = setInterval(() => {
                 timeLeft--;
                 updateDisplay();
                 if (timeLeft <= 0) {
                     clearInterval(timerId);
                     timerId = null;
-                    document.getElementById('alarmSound').play();
+                    alarm.play(); // Empezará a sonar en bucle
                 }
             }, 1000);
         }
 
-        function pauseTimer() { clearInterval(timerId); timerId = null; }
+        function stopAlarm() {
+            alarm.pause();
+            alarm.currentTime = 0;
+        }
+
+        function pauseTimer() { 
+            clearInterval(timerId); 
+            timerId = null; 
+            stopAlarm(); // Detiene el sonido si está sonando
+        }
 
         function resetTimer() {
             pauseTimer();
+            stopAlarm();
             timeLeft = times[currentMode] * 60;
             updateDisplay();
         }
