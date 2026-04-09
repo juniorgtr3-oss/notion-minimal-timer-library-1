@@ -6,10 +6,9 @@
     <style>
         :root {
             --bg-color: transparent;
-            --timer-color-1: #37352f;
-            --accent-color-1: #ffb38a;
-            --timer-color-2: #3C4E5E; /* Color de la imagen para números y acentos */
-            --accent-color-2: #3C4E5E; /* Color de la imagen para acentos */
+            /* Color extraído de tu imagen */
+            --timer-color: #3e4e5e; 
+            --accent-color: #3e4e5e;
             --button-bg: #ffffff;
         }
 
@@ -23,15 +22,6 @@
             margin: 0;
             background-color: var(--bg-color);
             overflow: hidden;
-            gap: 20px; /* Separación entre los dos temporizadores */
-        }
-
-        /* Estilos generales para ambos temporizadores */
-        .timer-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
         }
 
         /* Modos */
@@ -54,7 +44,9 @@
         }
 
         .mode-btn.active {
+            color: var(--accent-color);
             font-weight: bold;
+            border-bottom: 2px solid var(--accent-color);
         }
 
         /* Temporizador */
@@ -63,6 +55,7 @@
             font-weight: 700;
             margin: 5px 0;
             letter-spacing: -4px;
+            color: var(--timer-color);
         }
 
         /* Botones */
@@ -79,11 +72,13 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.75rem;
+            color: var(--timer-color);
             transition: all 0.2s ease;
         }
 
         .btn:hover {
-            background: #fffcfb;
+            border-color: var(--accent-color);
+            background: #f4f6f7;
         }
 
         .settings-toggle {
@@ -99,11 +94,12 @@
         }
 
         .settings-toggle:hover {
+            color: var(--accent-color);
             transform: rotate(45deg);
         }
 
         /* Panel de Configuración */
-        .settings-panel {
+        #settings-panel {
             display: none;
             position: fixed;
             top: 50%;
@@ -124,282 +120,143 @@
         
         .save-btn {
             width: 100%;
+            background: var(--timer-color);
+            color: white;
             border: none;
             padding: 8px;
             border-radius: 6px;
             cursor: pointer;
             margin-top: 10px;
             font-size: 0.8rem;
-            color: white;
         }
-
-        /* Estilos específicos para el Temporizador 1 */
-        #timer-1 .mode-btn.active { color: var(--accent-color-1); border-bottom: 2px solid var(--accent-color-1); }
-        #timer-1 .timer-display { color: var(--timer-color-1); }
-        #timer-1 .btn { color: var(--timer-color-1); }
-        #timer-1 .btn:hover { border-color: var(--accent-color-1); }
-        #timer-1 .settings-toggle:hover { color: var(--accent-color-1); }
-        #timer-1 .save-btn { background: var(--timer-color-1); }
-
-        /* Estilos específicos para el Temporizador 2 (con el color de la imagen) */
-        #timer-2 .mode-btn.active { color: var(--accent-color-2); border-bottom: 2px solid var(--accent-color-2); }
-        #timer-2 .timer-display { color: var(--timer-color-2); }
-        #timer-2 .btn { color: var(--timer-color-2); }
-        #timer-2 .btn:hover { border-color: var(--accent-color-2); }
-        #timer-2 .settings-toggle:hover { color: var(--accent-color-2); }
-        #timer-2 .save-btn { background: var(--timer-color-2); }
     </style>
 </head>
 <body>
 
-    <div class="timer-container" id="timer-1">
-        <div class="modes">
-            <button class="mode-btn active" id="focusModeBtn-1" onclick="switchMode1('focus')">Focus</button>
-            <button class="mode-btn" id="breakModeBtn-1" onclick="switchMode1('break')">Break</button>
-            <button class="mode-btn" id="descansoModeBtn-1" onclick="switchMode1('descanso')">Descanso</button>
-        </div>
-
-        <div class="timer-display" id="display-1">25:00</div>
-        
-        <div class="controls">
-            <button class="btn" onclick="startTimer1()">Empezar</button>
-            <button class="btn" onclick="pauseTimer1()">Pausa</button>
-            <button class="btn" onclick="resetTimer1()">Reiniciar</button>
-            <button class="settings-toggle" onclick="toggleSettings1()">⚙️</button>
-        </div>
-
-        <div class="settings-panel" id="settings-panel-1">
-            <div class="field"><label>Minutos Focus:</label><input type="number" id="focusIn-1" value="25"></div>
-            <div class="field"><label>Minutos Break:</label><input type="number" id="breakIn-1" value="5"></div>
-            <div class="field"><label>Minutos Descanso:</label><input type="number" id="descansoIn-1" value="15"></div>
-            <div class="field"><label>Color Números:</label><input type="color" id="numCol-1" value="#37352f"></div>
-            <div class="field"><label>Color Interfaz:</label><input type="color" id="accCol-1" value="#ffb38a"></div>
-            <button class="save-btn" onclick="saveSettings1()">Guardar Cambios</button>
-        </div>
-        <audio id="alarmSound-1" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" loop></audio>
+    <div class="modes">
+        <button class="mode-btn active" id="focusModeBtn" onclick="switchMode('focus')">Focus</button>
+        <button class="mode-btn" id="breakModeBtn" onclick="switchMode('break')">Break</button>
+        <button class="mode-btn" id="descansoModeBtn" onclick="switchMode('descanso')">Descanso</button>
     </div>
 
-    <div class="timer-container" id="timer-2">
-        <div class="modes">
-            <button class="mode-btn active" id="focusModeBtn-2" onclick="switchMode2('focus')">Focus</button>
-            <button class="mode-btn" id="breakModeBtn-2" onclick="switchMode2('break')">Break</button>
-            <button class="mode-btn" id="descansoModeBtn-2" onclick="switchMode2('descanso')">Descanso</button>
-        </div>
-
-        <div class="timer-display" id="display-2">25:00</div>
-        
-        <div class="controls">
-            <button class="btn" onclick="startTimer2()">Empezar</button>
-            <button class="btn" onclick="pauseTimer2()">Pausa</button>
-            <button class="btn" onclick="resetTimer2()">Reiniciar</button>
-            <button class="settings-toggle" onclick="toggleSettings2()">⚙️</button>
-        </div>
-
-        <div class="settings-panel" id="settings-panel-2">
-            <div class="field"><label>Minutos Focus:</label><input type="number" id="focusIn-2" value="25"></div>
-            <div class="field"><label>Minutos Break:</label><input type="number" id="breakIn-2" value="5"></div>
-            <div class="field"><label>Minutos Descanso:</label><input type="number" id="descansoIn-2" value="15"></div>
-            <div class="field"><label>Color Números:</label><input type="color" id="numCol-2" value="#3C4E5E"></div> <div class="field"><label>Color Interfaz:</label><input type="color" id="accCol-2" value="#3C4E5E"></div> <button class="save-btn" onclick="saveSettings2()">Guardar Cambios</button>
-        </div>
-        <audio id="alarmSound-2" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" loop></audio>
+    <div class="timer-display" id="display">25:00</div>
+    
+    <div class="controls">
+        <button class="btn" onclick="startTimer()">Empezar</button>
+        <button class="btn" onclick="pauseTimer()">Pausa</button>
+        <button class="btn" onclick="resetTimer()">Reiniciar</button>
+        <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
     </div>
 
-    <script id="script-1">
-        let times1 = {
-            focus: localStorage.getItem('focus1') || 25,
-            break: localStorage.getItem('break1') || 5,
-            descanso: localStorage.getItem('descanso1') || 15
+    <div id="settings-panel">
+        <div class="field"><label>Minutos Focus:</label><input type="number" id="focusIn" value="25"></div>
+        <div class="field"><label>Minutos Break:</label><input type="number" id="breakIn" value="5"></div>
+        <div class="field"><label>Minutos Descanso:</label><input type="number" id="descansoIn" value="15"></div>
+        <div class="field"><label>Color Números:</label><input type="color" id="numCol" value="#3e4e5e"></div>
+        <div class="field"><label>Color Interfaz:</label><input type="color" id="accCol" value="#3e4e5e"></div>
+        <button class="save-btn" onclick="saveSettings()">Guardar Cambios</button>
+    </div>
+
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" loop></audio>
+
+    <script>
+        // Los colores por defecto se inicializan con el tono de la imagen
+        let times = {
+            focus: localStorage.getItem('focus') || 25,
+            break: localStorage.getItem('break') || 5,
+            descanso: localStorage.getItem('descanso') || 15
         };
-        let colors1 = {
-            num: localStorage.getItem('numCol1') || '#37352f',
-            acc: localStorage.getItem('accCol1') || '#ffb38a'
+        let colors = {
+            num: localStorage.getItem('numCol') || '#3e4e5e',
+            acc: localStorage.getItem('accCol') || '#3e4e5e'
         };
         
-        let timeLeft1 = times1.focus * 60;
-        let timerId1 = null;
-        let currentMode1 = 'focus';
-        const alarm1 = document.getElementById('alarmSound-1');
+        let timeLeft = times.focus * 60;
+        let timerId = null;
+        let currentMode = 'focus';
+        const alarm = document.getElementById('alarmSound');
 
-        function init1() {
-            document.documentElement.style.setProperty('--timer-color-1', colors1.num);
-            document.documentElement.style.setProperty('--accent-color-1', colors1.acc);
-            document.getElementById('focusIn-1').value = times1.focus;
-            document.getElementById('breakIn-1').value = times1.break;
-            document.getElementById('descansoIn-1').value = times1.descanso;
-            document.getElementById('numCol-1').value = colors1.num;
-            document.getElementById('accCol-1').value = colors1.acc;
-            updateDisplay1();
+        function init() {
+            document.documentElement.style.setProperty('--timer-color', colors.num);
+            document.documentElement.style.setProperty('--accent-color', colors.acc);
+            document.getElementById('focusIn').value = times.focus;
+            document.getElementById('breakIn').value = times.break;
+            document.getElementById('descansoIn').value = times.descanso;
+            document.getElementById('numCol').value = colors.num;
+            document.getElementById('accCol').value = colors.acc;
+            updateDisplay();
         }
 
-        function updateDisplay1() {
-            const m = Math.floor(timeLeft1 / 60);
-            const s = timeLeft1 % 60;
-            document.getElementById('display-1').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+        function updateDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('display').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        function stopAlarm1() {
-            alarm1.pause();
-            alarm1.currentTime = 0;
+        function stopAlarm() {
+            alarm.pause();
+            alarm.currentTime = 0;
         }
 
-        function startTimer1() {
-            if (timerId1) return;
-            stopAlarm1();
-            timerId1 = setInterval(() => {
-                timeLeft1--;
-                updateDisplay1();
-                if (timeLeft1 <= 0) {
-                    clearInterval(timerId1);
-                    timerId1 = null;
-                    alarm1.play();
+        function startTimer() {
+            if (timerId) return;
+            stopAlarm();
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    alarm.play();
                 }
             }, 1000);
         }
 
-        function pauseTimer1() { 
-            clearInterval(timerId1); 
-            timerId1 = null; 
-            stopAlarm1(); 
+        function pauseTimer() { 
+            clearInterval(timerId); 
+            timerId = null; 
+            stopAlarm(); 
         }
 
-        function resetTimer1() {
-            pauseTimer1();
-            stopAlarm1();
-            timeLeft1 = times1[currentMode1] * 60;
-            updateDisplay1();
+        function resetTimer() {
+            pauseTimer();
+            stopAlarm();
+            timeLeft = times[currentMode] * 60;
+            updateDisplay();
         }
 
-        function switchMode1(mode) {
-            currentMode1 = mode;
+        function switchMode(mode) {
+            currentMode = mode;
             ['focus','break','descanso'].forEach(m => {
-                document.getElementById(`${m}ModeBtn-1`).classList.toggle('active', m === mode);
+                document.getElementById(`${m}ModeBtn`).classList.toggle('active', m === mode);
             });
-            resetTimer1();
+            resetTimer();
         }
 
-        function toggleSettings1() {
-            const p = document.getElementById('settings-panel-1');
+        function toggleSettings() {
+            const p = document.getElementById('settings-panel');
             p.style.display = p.style.display === 'block' ? 'none' : 'block';
         }
 
-        function saveSettings1() {
-            times1.focus = document.getElementById('focusIn-1').value;
-            times1.break = document.getElementById('breakIn-1').value;
-            times1.descanso = document.getElementById('descansoIn-1').value;
-            colors1.num = document.getElementById('numCol-1').value;
-            colors1.acc = document.getElementById('accCol-1').value;
+        function saveSettings() {
+            times.focus = document.getElementById('focusIn').value;
+            times.break = document.getElementById('breakIn').value;
+            times.descanso = document.getElementById('descansoIn').value;
+            colors.num = document.getElementById('numCol').value;
+            colors.acc = document.getElementById('accCol').value;
 
-            localStorage.setItem('focus1', times1.focus);
-            localStorage.setItem('break1', times1.break);
-            localStorage.setItem('descanso1', times1.descanso);
-            localStorage.setItem('numCol1', colors1.num);
-            localStorage.setItem('accCol1', colors1.acc);
+            localStorage.setItem('focus', times.focus);
+            localStorage.setItem('break', times.break);
+            localStorage.setItem('descanso', times.descanso);
+            localStorage.setItem('numCol', colors.num);
+            localStorage.setItem('accCol', colors.acc);
 
-            init1();
-            toggleSettings1();
-            resetTimer1();
+            init();
+            toggleSettings();
+            resetTimer();
         }
 
-        init1();
-    </script>
-
-    <script id="script-2">
-        let times2 = {
-            focus: localStorage.getItem('focus2') || 25,
-            break: localStorage.getItem('break2') || 5,
-            descanso: localStorage.getItem('descanso2') || 15
-        };
-        let colors2 = {
-            num: localStorage.getItem('numCol2') || '#3C4E5E', // Pre-cargado con el color de la imagen
-            acc: localStorage.getItem('accCol2') || '#3C4E5E'  // Pre-cargado con el color de la imagen
-        };
-        
-        let timeLeft2 = times2.focus * 60;
-        let timerId2 = null;
-        let currentMode2 = 'focus';
-        const alarm2 = document.getElementById('alarmSound-2');
-
-        function init2() {
-            document.documentElement.style.setProperty('--timer-color-2', colors2.num);
-            document.documentElement.style.setProperty('--accent-color-2', colors2.acc);
-            document.getElementById('focusIn-2').value = times2.focus;
-            document.getElementById('breakIn-2').value = times2.break;
-            document.getElementById('descansoIn-2').value = times2.descanso;
-            document.getElementById('numCol-2').value = colors2.num;
-            document.getElementById('accCol-2').value = colors2.acc;
-            updateDisplay2();
-        }
-
-        function updateDisplay2() {
-            const m = Math.floor(timeLeft2 / 60);
-            const s = timeLeft2 % 60;
-            document.getElementById('display-2').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        function stopAlarm2() {
-            alarm2.pause();
-            alarm2.currentTime = 0;
-        }
-
-        function startTimer2() {
-            if (timerId2) return;
-            stopAlarm2();
-            timerId2 = setInterval(() => {
-                timeLeft2--;
-                updateDisplay2();
-                if (timeLeft2 <= 0) {
-                    clearInterval(timerId2);
-                    timerId2 = null;
-                    alarm2.play();
-                }
-            }, 1000);
-        }
-
-        function pauseTimer2() { 
-            clearInterval(timerId2); 
-            timerId2 = null; 
-            stopAlarm2(); 
-        }
-
-        function resetTimer2() {
-            pauseTimer2();
-            stopAlarm2();
-            timeLeft2 = times2[currentMode2] * 60;
-            updateDisplay2();
-        }
-
-        function switchMode2(mode) {
-            currentMode2 = mode;
-            ['focus','break','descanso'].forEach(m => {
-                document.getElementById(`${m}ModeBtn-2`).classList.toggle('active', m === mode);
-            });
-            resetTimer2();
-        }
-
-        function toggleSettings2() {
-            const p = document.getElementById('settings-panel-2');
-            p.style.display = p.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function saveSettings2() {
-            times2.focus = document.getElementById('focusIn-2').value;
-            times2.break = document.getElementById('breakIn-2').value;
-            times2.descanso = document.getElementById('descansoIn-2').value;
-            colors2.num = document.getElementById('numCol-2').value;
-            colors2.acc = document.getElementById('accCol-2').value;
-
-            localStorage.setItem('focus2', times2.focus);
-            localStorage.setItem('break2', times2.break);
-            localStorage.setItem('descanso2', times2.descanso);
-            localStorage.setItem('numCol2', colors2.num);
-            localStorage.setItem('accCol2', colors2.acc);
-
-            init2();
-            toggleSettings2();
-            resetTimer2();
-        }
-
-        init2();
+        init();
     </script>
 </body>
 </html>
