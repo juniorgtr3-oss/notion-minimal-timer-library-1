@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temporizador Preciso</title>
+    <title>Temporizador con Sesiones</title>
     <style>
         :root {
             --bg-color: transparent;
@@ -22,8 +22,55 @@
             margin: 0;
             background-color: var(--bg-color);
             overflow: hidden;
+            position: relative;
         }
 
+        /* Contador de Sesiones Superior Derecho */
+        .session-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dots-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent-color);
+            background: transparent;
+            transition: background 0.3s ease;
+        }
+
+        .dot.filled {
+            background: var(--accent-color);
+        }
+
+        .reset-sessions-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .reset-sessions-btn:hover {
+            color: var(--accent-color);
+            transform: rotate(-90deg);
+        }
+
+        /* Modos */
         .modes {
             display: flex;
             gap: 15px;
@@ -129,6 +176,16 @@
 </head>
 <body>
 
+    <div class="session-container">
+        <div class="dots-group" id="dotsGroup">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <button class="reset-sessions-btn" onclick="resetSessions()" title="Reiniciar sesiones">↺</button>
+    </div>
+
     <div class="modes">
         <button class="mode-btn active" id="focusModeBtn" onclick="switchMode('focus')">Focus</button>
         <button class="mode-btn" id="breakModeBtn" onclick="switchMode('break')">Break</button>
@@ -153,23 +210,24 @@
         <button class="save-btn" onclick="saveSettings()">Guardar Cambios</button>
     </div>
 
-    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" loop></audio>
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" loop></audio>
 
     <script>
         let times = {
-            focus: localStorage.getItem('focus_v3') || 25,
-            break: localStorage.getItem('break_v3') || 5,
-            descanso: localStorage.getItem('descanso_v3') || 15
+            focus: localStorage.getItem('focus_v4') || 25,
+            break: localStorage.getItem('break_v4') || 5,
+            descanso: localStorage.getItem('descanso_v4') || 15
         };
         let colors = {
-            num: localStorage.getItem('numCol_v3') || '#3e4e5e',
-            acc: localStorage.getItem('accCol_v3') || '#3e4e5e'
+            num: localStorage.getItem('numCol_v4') || '#3e4e5e',
+            acc: localStorage.getItem('accCol_v4') || '#3e4e5e'
         };
         
         let timeLeft = times.focus * 60;
         let timerId = null;
-        let endTime = null; // Guardará el momento exacto en que debe terminar
+        let endTime = null;
         let currentMode = 'focus';
+        let completedSessions = parseInt(localStorage.getItem('sessionCount')) || 0;
         const alarm = document.getElementById('alarmSound');
 
         function init() {
@@ -181,12 +239,30 @@
             document.getElementById('numCol').value = colors.num;
             document.getElementById('accCol').value = colors.acc;
             updateDisplay();
+            updateSessionsUI();
         }
 
         function updateDisplay() {
             const m = Math.floor(timeLeft / 60);
             const s = timeLeft % 60;
             document.getElementById('display').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function updateSessionsUI() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if (index < completedSessions) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            });
+        }
+
+        function resetSessions() {
+            completedSessions = 0;
+            localStorage.setItem('sessionCount', 0);
+            updateSessionsUI();
         }
 
         function stopAlarm() {
@@ -198,7 +274,6 @@
             if (timerId) return;
             stopAlarm();
             
-            // Calculamos el momento exacto de finalización basado en el tiempo actual
             endTime = Date.now() + (timeLeft * 1000);
 
             timerId = setInterval(() => {
@@ -210,12 +285,20 @@
                     updateDisplay();
                     clearInterval(timerId);
                     timerId = null;
+                    
+                    // Solo incrementa si es modo Focus
+                    if (currentMode === 'focus') {
+                        completedSessions = Math.min(completedSessions + 1, 4);
+                        localStorage.setItem('sessionCount', completedSessions);
+                        updateSessionsUI();
+                    }
+                    
                     alarm.play();
                 } else {
                     timeLeft = difference;
                     updateDisplay();
                 }
-            }, 200); // Revisamos 5 veces por segundo para mayor precisión visual
+            }, 200);
         }
 
         function pauseTimer() { 
@@ -251,11 +334,11 @@
             colors.num = document.getElementById('numCol').value;
             colors.acc = document.getElementById('accCol').value;
 
-            localStorage.setItem('focus_v3', times.focus);
-            localStorage.setItem('break_v3', times.break);
-            localStorage.setItem('descanso_v3', times.descanso);
-            localStorage.setItem('numCol_v3', colors.num);
-            localStorage.setItem('accCol_v3', colors.acc);
+            localStorage.setItem('focus_v4', times.focus);
+            localStorage.setItem('break_v4', times.break);
+            localStorage.setItem('descanso_v4', times.descanso);
+            localStorage.setItem('numCol_v4', colors.num);
+            localStorage.setItem('accCol_v4', colors.acc);
 
             init();
             toggleSettings();
