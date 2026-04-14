@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temporizador Notion Pro</title>
+    <title>Temporizador con Sesiones Izquierda</title>
     <style>
         :root {
             --bg-color: transparent;
@@ -15,45 +15,38 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
             background-color: var(--bg-color);
             overflow: hidden;
-        }
-
-        /* Contenedor principal para agrupar todo */
-        .main-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             position: relative;
-            padding: 20px;
         }
 
-        /* Contador de Sesiones: Posicionado arriba a la derecha del bloque */
+        /* Contador de Sesiones Superior Izquierdo */
         .session-container {
             position: absolute;
-            top: 0;
-            right: 0;
+            top: 15px;
+            left: 15px; /* Cambiado de right a left */
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .dots-group {
             display: flex;
-            gap: 5px;
+            gap: 6px;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             border: 1.5px solid var(--accent-color);
             background: transparent;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease;
         }
 
         .dot.filled {
@@ -64,10 +57,11 @@
             background: none;
             border: none;
             cursor: pointer;
-            padding: 0;
+            padding: 4px;
             color: #ccc;
-            font-size: 0.9rem;
-            line-height: 1;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
             transition: color 0.2s, transform 0.2s;
         }
 
@@ -101,22 +95,18 @@
             border-bottom: 2px solid var(--accent-color);
         }
 
-        /* Temporizador */
         .timer-display {
             font-size: 5rem;
             font-weight: 700;
             margin: 5px 0;
             letter-spacing: -4px;
             color: var(--timer-color);
-            line-height: 1;
         }
 
-        /* Controles */
         .controls {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
         }
 
         .btn {
@@ -186,31 +176,29 @@
 </head>
 <body>
 
-    <div class="main-wrapper">
-        <div class="session-container">
-            <div class="dots-group" id="dotsGroup">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <button class="reset-sessions-btn" onclick="resetSessions()" title="Reiniciar sesiones">↺</button>
+    <div class="session-container">
+        <div class="dots-group" id="dotsGroup">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
         </div>
+        <button class="reset-sessions-btn" onclick="resetSessions()" title="Reiniciar sesiones">↺</button>
+    </div>
 
-        <div class="modes">
-            <button class="mode-btn active" id="focusModeBtn" onclick="switchMode('focus')">Focus</button>
-            <button class="mode-btn" id="breakModeBtn" onclick="switchMode('break')">Break</button>
-            <button class="mode-btn" id="descansoModeBtn" onclick="switchMode('descanso')">Descanso</button>
-        </div>
+    <div class="modes">
+        <button class="mode-btn active" id="focusModeBtn" onclick="switchMode('focus')">Focus</button>
+        <button class="mode-btn" id="breakModeBtn" onclick="switchMode('break')">Break</button>
+        <button class="mode-btn" id="descansoModeBtn" onclick="switchMode('descanso')">Descanso</button>
+    </div>
 
-        <div class="timer-display" id="display">25:00</div>
-        
-        <div class="controls">
-            <button class="btn" onclick="startTimer()">Empezar</button>
-            <button class="btn" onclick="pauseTimer()">Pausa</button>
-            <button class="btn" onclick="resetTimer()">Reiniciar</button>
-            <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
-        </div>
+    <div class="timer-display" id="display">25:00</div>
+    
+    <div class="controls">
+        <button class="btn" onclick="startTimer()">Empezar</button>
+        <button class="btn" onclick="pauseTimer()">Pausa</button>
+        <button class="btn" onclick="resetTimer()">Reiniciar</button>
+        <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
     </div>
 
     <div id="settings-panel">
@@ -225,7 +213,6 @@
     <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" loop></audio>
 
     <script>
-        // Versión v5 para asegurar limpieza de caché y nuevos estilos
         let times = {
             focus: localStorage.getItem('focus_v5') || 25,
             break: localStorage.getItem('break_v5') || 5,
@@ -240,7 +227,7 @@
         let timerId = null;
         let endTime = null;
         let currentMode = 'focus';
-        let completedSessions = parseInt(localStorage.getItem('sessionCount_v5')) || 0;
+        let completedSessions = parseInt(localStorage.getItem('sessionCount')) || 0;
         const alarm = document.getElementById('alarmSound');
 
         function init() {
@@ -274,7 +261,7 @@
 
         function resetSessions() {
             completedSessions = 0;
-            localStorage.setItem('sessionCount_v5', 0);
+            localStorage.setItem('sessionCount', 0);
             updateSessionsUI();
         }
 
@@ -301,7 +288,7 @@
                     
                     if (currentMode === 'focus') {
                         completedSessions = Math.min(completedSessions + 1, 4);
-                        localStorage.setItem('sessionCount_v5', completedSessions);
+                        localStorage.setItem('sessionCount', completedSessions);
                         updateSessionsUI();
                     }
                     
